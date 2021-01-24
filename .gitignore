@@ -1,0 +1,6 @@
+# transient files
+*.log
+*.tmp
+
+# IDE
+.vscode
