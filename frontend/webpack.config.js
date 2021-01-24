@@ -7,6 +7,7 @@ const path = require('path')
 const chalk = require('chalk')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
+const CI = process.env.CI === '1'
 const DIST = path.resolve(__dirname, 'dist')
 
 module.exports = {
@@ -30,27 +31,31 @@ module.exports = {
         ],
     },
     plugins: [new HtmlWebpackPlugin()],
-    devServer: {
-        static: [
-            DIST,
-            {
-                watch: true,
+    ...(CI && {
+        devServer: {
+            static: [
+                DIST,
+                {
+                    watch: true,
+                },
+            ],
+            host: 'notes.test',
+            port: 8080,
+            historyApiFallback: true,
+            https: {
+                key: fs.readFileSync('./ssl/privkey.pem'),
+                cert: fs.readFileSync('./ssl/fullchain.pem'),
+                ca: fs.readFileSync(
+                    path.join(os.homedir(), '.local/share/mkcert/rootCA.pem'),
+                ),
             },
-        ],
-        host: 'notes.test',
-        port: 8080,
-        historyApiFallback: true,
-        https: {
-            key: fs.readFileSync('./ssl/privkey.pem'),
-            cert: fs.readFileSync('./ssl/fullchain.pem'),
-            ca: fs.readFileSync(
-                path.join(os.homedir(), '.local/share/mkcert/rootCA.pem'),
-            ),
+            onListening: () => {
+                console.log(chalk.green('='.repeat(37)))
+                console.log(
+                    chalk.green(`Listening at https://notes.test:8080/`),
+                )
+                console.log(chalk.green('='.repeat(37)))
+            },
         },
-        onListening: () => {
-            console.log(chalk.green('='.repeat(37)))
-            console.log(chalk.green(`Listening at https://notes.test:8080/`))
-            console.log(chalk.green('='.repeat(37)))
-        },
-    },
+    }),
 }
