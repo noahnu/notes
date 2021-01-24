@@ -5,3 +5,9 @@
 !.yarn/versions
 !.yarn/sdks
 .pnp.*
+
+# build artifacts
+dist
+
+# transient files
+ssl
